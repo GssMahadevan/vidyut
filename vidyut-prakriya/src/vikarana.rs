@@ -266,7 +266,7 @@ fn add_lun_vikarana(p: &mut Prakriya) {
     maybe_replace_cli_with_sic(p, i);
 }
 
-fn add_kr_after_am_pratyaya(p: &mut Prakriya) {
+fn add_kr_after_am_pratyaya(p: &mut Prakriya) {//gssm: also need to add Bu & as pratyayas
     let mut kf = Term::make_dhatu("qukf\\Y", Tanadi, None);
     kf.set_text("kf");
     kf.add_tag(T::Dhatu);
@@ -326,7 +326,7 @@ fn maybe_add_am_pratyaya_for_lit(p: &mut Prakriya) -> Option<()> {
     } else if !f::is_eka_ac(dhatu) && !dhatu.has_text_in(&["jAgf", "UrRu"]) {
         // jAgf is handled separately below.
         p.op("3.1.35.v1", add_aam);
-    } else if dhatu.has_adi(&*IC) && dhatu.is_guru() && !dhatu.has_u("fCa~") {
+    } else if dhatu.has_adi(&*IC) && dhatu.is_guru() && !dhatu.has_u("fCa~") {//परन्तु ऋच्छ्-धातोः 
         // IkSAYcakre
         p.op("3.1.36", add_aam);
     } else if dhatu.has_text_in(&["day", "ay", "As"]) {
@@ -458,7 +458,7 @@ fn add_sarvadhatuka_vikarana(p: &mut Prakriya) -> Option<()> {
             add_vikarana("u")(p);
         });
     } else if dhatu.has_gana(Kryadi) {
-        // krIRAti
+        // krIRAti //gssm  in presence of a सार्वधातुक प्रत्यय in कर्तरि प्रयोग.
         p.op("3.1.81", add_vikarana("SnA"));
     } else {
         // Bavati

@@ -377,7 +377,7 @@ fn try_jhal_adesha(p: &mut Prakriya) -> Option<()> {
             let sub = JHAL_TO_CAR.get(x).expect("present");
             if x != sub {
                 set_at(p, i, &sub.to_string());
-                p.step("8.4.55");
+                p.step("8.4.55");//gssm: need to understand how Jal foloowed by Kar letter
                 true
             } else {
                 false

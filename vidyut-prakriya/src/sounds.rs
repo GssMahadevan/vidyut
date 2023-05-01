@@ -343,7 +343,7 @@ pub fn to_vrddhi(s: Sound) -> Option<&'static str> {
     Some(res)
 }
 
-// 1.1.48 UkAlojjhrasvadIrghaplutaH
+// 1.1.48 UkAlojjhrasvadIrghaplutaH // 1.2.27
 pub fn to_hrasva(s: Sound) -> Option<Sound> {
     let res = match s {
         'a' | 'A' => 'a',
@@ -358,7 +358,7 @@ pub fn to_hrasva(s: Sound) -> Option<Sound> {
     Some(res)
 }
 
-// 1.1.48 UkAlojjhrasvadIrghaplutaH
+// 1.1.48 UkAlojjhrasvadIrghaplutaH // 1.2.27
 pub fn to_dirgha(s: Sound) -> Option<Sound> {
     let res = match s {
         'a' | 'A' => 'A',

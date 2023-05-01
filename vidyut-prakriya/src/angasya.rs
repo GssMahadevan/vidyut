@@ -417,7 +417,7 @@ fn try_add_num_agama_for_sarvanamasthana(p: &mut Prakriya) -> Option<()> {
     let napum = p.has_tag(T::Napumsaka);
 
     if sup.has_tag(T::Sarvanamasthana) {
-        if anga.has_tag_in(&[T::udit, T::fdit]) && !anga.is_dhatu() {
+        if anga.has_tag_in(&[T::udit, T::fdit]) && !anga.is_dhatu() {//उ , ऋ and ऌ 
             p.op_term("7.1.70", i, op::mit("n"));
         } else if napum && (anga.has_antya(&*JHAL) || anga.has_antya(&*AC)) {
             p.op_term("7.1.72", i, op::mit("n"));
