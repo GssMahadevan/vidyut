@@ -22,7 +22,7 @@ fn add_dhatu(p: &mut Prakriya, dhatu: &Dhatu) {
 
 fn add_samjnas(p: &mut Prakriya, i: usize) {
     if p.has(i, |t| {
-        t.has_text_in(&["dA", "de", "do", "DA", "De"]) && !t.has_u("dA\\p")
+        t.has_text_in(&["dA", "de", "do", "DA", "De"]) && (!t.has_u("dA\\p") )    
     }) {
         p.op_term("1.1.20", i, op::add_tag(T::Ghu));
     };
@@ -285,8 +285,8 @@ mod tests {
     #[test]
     fn test_1_1_20_for_having_ghu_samjna(){
         let inputs = vec![
-            ("03.0010", "NudA\\Y"),
-            ("03.0011",	"NuDA\\Y"),
+            ("03.0010", "qudA\\Y"),
+            ("03.0011",	"quDA\\Y"),
             ("01.1079",	",dA\\R"),
             ("04.0043",	"do\\"),
             ("01.1117",	"de\\N"),
@@ -301,11 +301,9 @@ mod tests {
                     let mut p = Prakriya::new();
                     run(&mut p, &d).expect("ok");
                     let t = p.get(0).expect("ok").clone();
-                    if !t.has_tag(T::Ghu) {
-                        println!("This {:?} supposed to have Ghu-Samjna, but not having", u);
-                    }
+                    assert!( t.has_tag(T::Ghu), "This {:?} supposed to have Ghu-Samjna, but not having", u);
                 }else{
-                    println!("can't find Dahtupatha for : {:?}", u);
+                    assert!(true,"can't find Dahtupatha for : {:?}", u);
                 }
             }
         }
@@ -326,11 +324,9 @@ mod tests {
                     let mut p = Prakriya::new();
                     run(&mut p, &d).expect("ok");
                     let t = p.get(0).expect("ok").clone();
-                    if t.has_tag(T::Ghu) {
-                        println!("This {:?} supposed to NOT-TO have Ghu-Samjna, but having", u);
-                    }
+                    assert!( !t.has_tag(T::Ghu), "This input {:?} supposed NOT-TO-HAVE have Ghu-Samjna, but not having, t:{:?}", u,t);
                 }else{
-                    println!("can't find Dahtupatha for : {:?}", u);
+                    assert!(true,"can't find Dahtupatha for : {:?}", u);
                 }
             }
         }
