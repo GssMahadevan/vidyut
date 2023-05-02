@@ -2,10 +2,11 @@ use crate::args::Antargana;
 use crate::args::Dhatu;
 use crate::args::Gana;
 use crate::dhatu_gana as gana;
+use crate::dhatupatha::Dhatupatha;
 use crate::errors::*;
 use crate::it_samjna;
 use crate::operators as op;
-use crate::prakriya::{Prakriya, Rule};
+use crate::prakriya::{Config, Prakriya, Rule};
 use crate::stem_gana::PRA_ADI;
 use crate::tag::Tag as T;
 use crate::term::Term;
@@ -159,6 +160,9 @@ fn try_satva_and_natva(p: &mut Prakriya, i: usize) -> Option<()> {
 // moving this rule and running the tests.
 //
 // TODO: why exception for cakz?
+// From 'Ashtadhyayi by Pandit Ishwarchandra, Chowkamba' Vol-2, page 851
+// विशेष : ध्यान रहे प्रकॄतसूत्र में 'गोः पादान्ते' से 'अन्त' पद का अधिकार होने से यदि ह्रस्व इकार की धातु के अन्त में इत्सज्ञा होती है
+//       तभी नुमागम होता है ।  अतः चाक्षिङ् में इकार की इत्सज्ञा होने पर भी 'नुम्' नहीं होता है ।
 fn try_add_num_agama(p: &mut Prakriya, i: usize) {
     if p.has(i, |t| t.has_tag(T::idit) && !t.has_u("ca\\kzi~\\N")) {
         p.op_term("7.1.58", i, op::mit("n"));
@@ -218,6 +222,11 @@ mod tests {
     use crate::args::Gana;
 
     fn check(text: &str, code: &str) -> Term {
+        let p = check_with_config(text, code, None);
+        p.get(0).expect("ok").clone()
+    }
+
+    fn check_with_config(text: &str, code: &str, cfg: Option<Config>) -> Prakriya {
         let (gana, _number) = code.split_once('.').expect("valid");
         let dhatu = Dhatu::builder()
             .upadesha(text)
@@ -226,8 +235,13 @@ mod tests {
             .expect("ok");
 
         let mut p = Prakriya::new();
+        let config = match cfg {
+            Some(c) => c,
+            _ => Config::new(),
+        };
+        let mut p = Prakriya::with_config(config);
         run(&mut p, &dhatu).expect("ok");
-        p.get(0).expect("ok").clone()
+        p
     }
 
     #[test]
@@ -278,5 +292,58 @@ mod tests {
         let t = check("vadi~\\", "01.0011");
         assert_eq!(t.text, "vand");
         assert!(t.is_dhatu());
+    }
+    #[test]
+    #[allow(non_snake_case)]
+    fn test_no_num_agama_Bidir() {
+        let t = check("Bi\\di~^r", "07.0002");
+        let mut cfg = Config::new().log_steps();
+        let p = check_with_config("Bi\\di~^r", "07.0002", Some(cfg));
+        let t = p.get(0).expect("ok").clone();
+        println!("test_no_num_agama_Bidir :{:?}, prakriya: {:?}", t, p);
+        assert!(!t.text.contains("n"));
+        assert_eq!(t.text, "Bid"); // It should not be 'Bind' due to num_agama
+    }
+
+    #[test]
+    #[allow(non_snake_case)]
+    fn test_no_num_agama_cakziR() {
+        let mut cfg = Config::new().log_steps();
+        let p = check_with_config("ca\\kzi~\\N", "02.0007", Some(cfg));
+        let t = p.get(0).expect("ok").clone();
+        println!("test_no_num_agama_cakziR :{:?}, prakriya: {:?}", t, p);
+        assert!(!t.text.contains("n"));
+        assert_eq!(t.text, "cakz"); // It should not be 'Bind' due to num_agama
+    }
+
+    #[test]
+    fn test_num_agama_for_all_dhatus() {
+        let dp = Dhatupatha::from_path("./data/dhatupatha.tsv");
+        if let Ok(dp) = dp {
+            let mut cnt_idit = 0;
+            let mut cnt_num = 0;
+            for (_, entry) in dp.entries().iter().enumerate() {
+                // let d = entry.dhatu();
+                let code = entry.code();
+                let (gana, _number) = code.split_once('.').expect("valid");
+                let mut cfg = Config::new().log_steps();
+                let p = check_with_config(entry.dhatu().upadesha(), code, Some(cfg));
+                let t = p.get(0).expect("ok").clone();
+
+                if t.has_tag(T::idit) {
+                    let steps = p.history();
+                    let has_nu = steps.into_iter().filter(|s| s.rule() == "7.1.58").count();
+                    cnt_idit += 1;
+                    if has_nu > 0 {
+                        cnt_num += 1;
+                    }
+                    println!(
+                        "cntNum: {}, cntIdit: {}, has_nu:{}, t:{:?}, p:{:?}\n",
+                        cnt_num, cnt_idit, has_nu, t, p
+                    );
+                    //println!("cntNum: {}, cntIdit: {}, has_nu:{}, t:{:?}, t.u: {:?}",cnt_num, cnt_idit, has_nu,t.text,t.u.unwrap());
+                }
+            }
+        }
     }
 }

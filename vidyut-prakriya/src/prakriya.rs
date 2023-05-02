@@ -78,6 +78,10 @@ impl Config {
     pub fn new() -> Self {
         Self::default()
     }
+    pub fn log_steps(mut self) ->  Self {
+        self.log_steps = true;
+        self
+    }
 }
 
 /// Models a Paninian derivation.
