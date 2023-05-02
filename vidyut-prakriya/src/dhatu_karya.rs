@@ -279,4 +279,60 @@ mod tests {
         assert_eq!(t.text, "vand");
         assert!(t.is_dhatu());
     }
+  
+    use crate::dhatupatha::Dhatupatha;
+  
+    #[test]
+    fn test_1_1_20_for_having_ghu_samjna(){
+        let inputs = vec![
+            ("03.0010", "NudA\\Y"),
+            ("03.0011",	"NuDA\\Y"),
+            ("01.1079",	",dA\\R"),
+            ("04.0043",	"do\\"),
+            ("01.1117",	"de\\N"),
+            ("01.1050",	"De\\w"),
+        ];
+        let dp = Dhatupatha::from_path("./data/dhatupatha.tsv");
+        if let Ok(dp) = dp {
+            for u in inputs {
+                let d0 = dp.get(u.0);
+                // println!("d0 : {:?}",d0);
+                if let Some(d )= d0 {
+                    let mut p = Prakriya::new();
+                    run(&mut p, &d).expect("ok");
+                    let t = p.get(0).expect("ok").clone();
+                    if !t.has_tag(T::Ghu) {
+                        println!("This {:?} supposed to have Ghu-Samjna, but not having", u);
+                    }
+                }else{
+                    println!("can't find Dahtupatha for : {:?}", u);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_1_1_20_for_not_having_ghu_samjna(){
+        let inputs = vec![
+            ("02.0054", "dA\\p"),
+            ("01.1073",	"dE\\p"),
+        ];
+        let dp = Dhatupatha::from_path("./data/dhatupatha.tsv");
+        if let Ok(dp) = dp {
+            for u in inputs {
+                let d0 = dp.get(u.0);
+                // println!("d0 : {:?}",d0);
+                if let Some(d )= d0 {
+                    let mut p = Prakriya::new();
+                    run(&mut p, &d).expect("ok");
+                    let t = p.get(0).expect("ok").clone();
+                    if t.has_tag(T::Ghu) {
+                        println!("This {:?} supposed to NOT-TO have Ghu-Samjna, but having", u);
+                    }
+                }else{
+                    println!("can't find Dahtupatha for : {:?}", u);
+                }
+            }
+        }
+    }
 }

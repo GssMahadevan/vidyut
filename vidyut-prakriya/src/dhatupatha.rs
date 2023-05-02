@@ -8,6 +8,7 @@ use crate::errors::*;
 use std::path::Path;
 
 /// An entry in the Dhatupatha.
+#[derive(Debug)]
 pub struct Entry {
     code: String,
     dhatu: Dhatu,
@@ -51,6 +52,7 @@ impl Entry {
 /// The specific dhatupatha we use matters: for certain dhatus, we can determine their metadata
 /// only if we know exactly where they are located. (For an example, see our implementation of the
 /// private `maybe_find_antargana` function.)
+#[derive(Debug)]
 pub struct Dhatupatha(Vec<Entry>);
 
 /// Creates a dhatu with the given metadata. This function is meant for testing or for other ad-hoc
