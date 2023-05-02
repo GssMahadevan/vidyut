@@ -160,6 +160,10 @@ fn try_satva_and_natva(p: &mut Prakriya, i: usize) -> Option<()> {
 // moving this rule and running the tests.
 //
 // TODO: why exception for cakz?
+// From 'Ashtadhyayi by Pandit Ishwarchandra, Chowkamba' Vol-2, page 851
+// विशेष : ध्यान रहे प्रकॄतसूत्र में 'गोः पादान्ते' से 'अन्त' पद का अधिकार होने से यदि ह्रस्व इकार की धातु के अन्त में इत्सज्ञा होती है
+//       तभी नुमागम होता है ।  अतः चाक्षिङ् में इकार की इत्सज्ञा होने पर भी 'नुम्' नहीं होता है ।
+
 fn try_add_num_agama(p: &mut Prakriya, i: usize) {
     if p.has(i, |t| t.has_tag(T::idit) && !t.has_u("ca\\kzi~\\N")) {
         p.op_term("7.1.58", i, op::mit("n"));
