@@ -5,10 +5,11 @@ use crate::dhatu_gana as gana;
 use crate::errors::*;
 use crate::it_samjna;
 use crate::operators as op;
-use crate::prakriya::{Prakriya, Rule};
+use crate::prakriya::{Prakriya, Rule,Config};
 use crate::stem_gana::PRA_ADI;
 use crate::tag::Tag as T;
 use crate::term::Term;
+use crate::dhatupatha::Dhatupatha;
 
 fn add_dhatu(p: &mut Prakriya, dhatu: &Dhatu) {
     // The root enters the prakriyA
@@ -215,9 +216,13 @@ pub fn run(p: &mut Prakriya, dhatu: &Dhatu) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::args::Gana;
 
     fn check(text: &str, code: &str) -> Term {
+        let p = check_with_config(text, code, None);
+        p.get(0).expect("ok").clone()
+    }
+
+    fn check_with_config(text: &str, code: &str, cfg: Option<Config>) -> Prakriya {
         let (gana, _number) = code.split_once('.').expect("valid");
         let dhatu = Dhatu::builder()
             .upadesha(text)
@@ -225,9 +230,13 @@ mod tests {
             .build()
             .expect("ok");
 
-        let mut p = Prakriya::new();
+        let config =  match cfg  {
+                Some(c) => c,
+                _ => Config::new(),
+        };
+        let mut p = Prakriya::with_config(config);
         run(&mut p, &dhatu).expect("ok");
-        p.get(0).expect("ok").clone()
+        p
     }
 
     #[test]
@@ -279,4 +288,60 @@ mod tests {
         assert_eq!(t.text, "vand");
         assert!(t.is_dhatu());
     }
-}
+
+    #[test]
+    #[allow(non_snake_case)]
+    fn test_no_num_agama_Bidir() {
+        let t = check("Bi\\di~^r", "07.0002");
+        let mut cfg = Config::new().log_steps();
+        let p = check_with_config(	"Bi\\di~^r", "07.0002",Some(cfg));
+        let t = p.get(0).expect("ok").clone();
+        println!("test_no_num_agama_Bidir :{:?}, prakriya: {:?}",t,p);
+        assert!(!t.text.contains("n"));
+        assert_eq!(t.text,"Bid");// It should not be 'Bind' due to num_agama
+
+    }
+
+    #[test]
+    #[allow(non_snake_case)]
+    fn test_no_num_agama_cakziR() {
+        let mut cfg = Config::new().log_steps();
+        let p = check_with_config(	"ca\\kzi~\\N","02.0007",Some(cfg));
+        let t = p.get(0).expect("ok").clone();
+        println!("test_no_num_agama_cakziR :{:?}, prakriya: {:?}",t,p);
+        assert!(!t.text.contains("n"));
+        assert_eq!(t.text,"cakz");// It should not be 'Bind' due to num_agama
+    }
+
+    #[test]
+    fn test_num_agama_for_all_dhatus(){
+        let dp = Dhatupatha::from_path("./data/dhatupatha.tsv");
+        if let Ok(dp) = dp {
+                let mut cnt_idit =0;
+                let mut cnt_num =0;
+                for (_,entry) in dp.entries().iter().enumerate()  {
+                        // let d = entry.dhatu();
+                        let code = entry.code();
+                        let (gana, _number) = code.split_once('.').expect("valid");
+                        let mut cfg = Config::new().log_steps();
+                        let p = check_with_config(entry.dhatu().upadesha(), code, Some(cfg));
+                        let t = p.get(0).expect("ok").clone();
+
+                        if t.has_tag(T::idit) {
+                            let steps = p.history();
+                            let has_nu = steps.into_iter().filter(|s| s.rule() == "7.1.58").count();
+                            cnt_idit += 1;
+                            if has_nu > 0 {
+                                cnt_num += 1;
+                            }
+                            println!("cntNum: {}, cntIdit: {}, has_nu:{}, t:{:?}, p:{:?}\n",cnt_num, cnt_idit, has_nu,t,p);
+                            //println!("cntNum: {}, cntIdit: {}, has_nu:{}, t:{:?}, t.u: {:?}",cnt_num, cnt_idit, has_nu,t.text,t.u.unwrap());
+                        }
+                        
+                    
+                }
+            }
+        }
+    }
+    
+

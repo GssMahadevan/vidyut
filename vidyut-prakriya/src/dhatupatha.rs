@@ -180,6 +180,11 @@ impl Dhatupatha {
             Err(_) => None,
         }
     }
+
+    /// returns DhatuPatha entries
+    pub fn entries(&self) -> &Vec<Entry> {
+        &self.0
+    }
 }
 
 impl IntoIterator for Dhatupatha {
