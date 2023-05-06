@@ -133,6 +133,37 @@ pub fn assert_padas(prakriyas: Vec<Prakriya>, expected: &[&str]) {
     }
 }
 
+
+pub fn assert_padas_vec(prakriyas: Vec<Prakriya>, expected: Vec<&str>) {
+    let actuals: Vec<_> = prakriyas.iter().map(|p| p.text()).collect();
+
+    if actuals.len() != expected.len() {
+        print_all_prakriyas(&prakriyas);
+    }
+
+    assert_eq!(
+        actuals.len(),
+        expected.len(),
+        "expected: {expected:?}, actual: {actuals:?}"
+    );
+
+    let mut expected = Vec::from(expected);
+    expected.sort();
+    expected.dedup();
+
+    for (i, p) in prakriyas.iter().enumerate() {
+        let actual = p.text();
+
+        if actual != expected[i] {
+            print_all_prakriyas(&prakriyas);
+        }
+        assert_eq!(
+            actual, expected[i],
+            "expected: {expected:?}, actual: {actuals:?}"
+        );
+    }
+}
+
 /// Checks the given lakara/purusha/vacana
 pub fn assert_has_tinanta(
     prefixes: &[&str],
@@ -226,6 +257,11 @@ pub fn assert_has_lat_p(prefixes: &[&str], dhatu: &Dhatu, expected: &[&str]) {
     assert_padas(actual, expected);
 }
 
+
+pub fn assert_has_lat_p_vec(prefixes: &[&str], dhatu: &Dhatu, expected: Vec<&str>) {
+    let actual = derive_parasmai(prefixes, dhatu, Lakara::Lat);
+    assert_padas_vec(actual, expected);
+}
 pub fn assert_has_lat_a(prefixes: &[&str], dhatu: &Dhatu, expected: &[&str]) {
     let actual = derive_atmane(prefixes, dhatu, Lakara::Lat);
     assert_padas(actual, expected);

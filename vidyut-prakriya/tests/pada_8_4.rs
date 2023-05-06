@@ -116,6 +116,21 @@ fn sutra_8_4_15() {
 }
 
 #[test]
+fn sutra_8_4_15_extra() {
+    let inputs = vec![
+        (["pra","ni"], d("qupa\\ca~^z",Bhvadi), vec!["pranipacati","praRipacati"]),
+        (["pra" ,"ni"],d( "BU",Bhvadi), vec!["praniBavati","praRiBavati"]),
+        (["pra", "ni"],d("o~hA\\k",Juhotyadi),vec!["pranijahAti","praRijahAti"]),
+        (["pra", "ni"],d("pi\\zx~",Rudhadi),vec!["pranipinazwi"]),
+    ];
+
+
+    for (upa,dhatu,result) in inputs {
+        assert_has_lat_p_vec(&upa, &dhatu, result);
+    }
+
+}
+#[test]
 fn sutra_8_4_16() {
     let vap = d("quva\\pa~^", Bhvadi);
     let yaa = d("yA\\", Adadi);
