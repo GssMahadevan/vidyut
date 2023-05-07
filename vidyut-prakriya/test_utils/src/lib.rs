@@ -4,6 +4,7 @@ use vidyut_prakriya::args::*;
 use vidyut_prakriya::Ashtadhyayi;
 use vidyut_prakriya::Prakriya;
 
+
 fn sanitize_results(mut results: Vec<Prakriya>) -> Vec<Prakriya> {
     results.sort_by_key(|p| p.text());
     results.dedup_by_key(|p| p.text());
@@ -104,36 +105,8 @@ pub fn stri(text: &str) -> Pratipadika {
 }
 
 pub fn assert_padas(prakriyas: Vec<Prakriya>, expected: &[&str]) {
-    let actuals: Vec<_> = prakriyas.iter().map(|p| p.text()).collect();
-
-    if actuals.len() != expected.len() {
-        print_all_prakriyas(&prakriyas);
-    }
-
-    assert_eq!(
-        actuals.len(),
-        expected.len(),
-        "expected: {expected:?}, actual: {actuals:?}"
-    );
-
-    let mut expected = Vec::from(expected);
-    expected.sort();
-    expected.dedup();
-
-    for (i, p) in prakriyas.iter().enumerate() {
-        let actual = p.text();
-
-        if actual != expected[i] {
-            print_all_prakriyas(&prakriyas);
-        }
-        assert_eq!(
-            actual, expected[i],
-            "expected: {expected:?}, actual: {actuals:?}"
-        );
-    }
+    assert_padas_vec(prakriyas,expected.to_vec());
 }
-
-
 pub fn assert_padas_vec(prakriyas: Vec<Prakriya>, expected: Vec<&str>) {
     let actuals: Vec<_> = prakriyas.iter().map(|p| p.text()).collect();
 
